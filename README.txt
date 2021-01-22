@@ -18,7 +18,7 @@ bcftools: http://samtools.github.io/bcftools/bcftools.html
 vcftools: http://vcftools.sourceforge.net/
 
 Haploview.jar (v4.2) has been provided under the tools directory. And please make sure the Java Runtime Environment meets the requirements of Haploview. 
-For more detail about Haploview, please visit:
+For more details about Haploview, please visit:
 https://www.broadinstitute.org/haploview/tutorial
 
 3. INSTALLATION
