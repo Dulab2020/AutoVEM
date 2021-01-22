@@ -358,7 +358,9 @@ def snp_filter(file, directory, sites, fre):
     frequency = counts/n_genome
     frequency = frequency.round(decimals=4)
     snp_dict = dict(zip(frequency.index.tolist(), frequency.values.tolist()))
-    snp_dict.pop(0)
+    
+    if 0 in snp_dict:
+        snp_dict.pop(0)
     for item in list(range(1, 29904)):
         if item not in snp_dict:
             snp_dict[item] = 0
@@ -660,7 +662,7 @@ def plot(file, file2, directory):
     country = country.tolist()
     n_country = len(country)
     
-    n=7
+    n=15
     start = df.index[0]
     end = df.index[-1]
     detal = end - start
@@ -914,7 +916,7 @@ def module2(file, directory, sites, frequency):
 
     print('Linkage analyzing...')
     haplotypesFile = linkage_analysis(pedFile, mapFile, blockFile, directory)
-    os.system('rm -rf %s %s %s'%(mapFile, pedFile, blockFile))
+    # os.system('rm -rf %s %s %s'%(mapFile, pedFile, blockFile))
     print('Done!')
     
     print('Haplotyping......')
