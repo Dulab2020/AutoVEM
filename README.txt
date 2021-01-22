@@ -1,7 +1,7 @@
 PROGRAM: AutoVEM
 DESCRIPTION: Virus epidemic trends analysis tool
 AUTHOR: Xibinbin, Duhongli et al.
-CONTACT: 201766841276@mail.scut.edu.cn, Duhl@scut.edu.cn
+CONTACT: 201766841276@mail.scut.edu.cn, hldu@scut.edu.cn
 YEAR: 2020
 LICENSE: Released under GNU General Public License
 
