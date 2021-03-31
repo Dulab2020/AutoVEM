@@ -1,13 +1,14 @@
 #!/env/bin/python
 
 '''
-author='xibinbin'
+author='xibinbin et al.'
 '''
 
 import argparse
 import os
 import sys
 import re
+import shutil
 import pandas as pd 
 import numpy as np
 import matplotlib.pyplot as plt 
@@ -16,51 +17,36 @@ import math
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.colors as mcolors
 
-dulab1Directory = os.path.split(os.path.abspath(sys.argv[0]))[0]
-dataDirectory = os.path.join(dulab1Directory, 'data')
-toolsDirectory = os.path.join(dulab1Directory, 'tools')
-
+dirname, filename = os.path.split(os.path.abspath(sys.argv[0]))
+dataDirectory = os.path.join(dirname, 'data')
+toolsDirectory = os.path.join(dirname, 'tools')
 ploidy = os.path.join(dataDirectory, 'ploidy.txt')
 refsequence = os.path.join(dataDirectory, 'reference.fa')
 haploview = os.path.join(toolsDirectory, 'Haploview.jar')
 
-# print(dulab1Directory)
-# print(dataDirectory)
-# print(toolsDirectory)
-# print(ploidy)
-# print(refsequence)
-# print(haploview)
-
 def arguments():
     dulab1_parser = argparse.ArgumentParser(prog='AutoVEM', 
-                                            description='A tool for analyzing SARS-Cov-2 genome mutations and epidemic trends', 
-                                            usage='python main.py modes --input [--sites] [--frequency] --output')
+                                            description='SARS-CoV-2 epidemic trends analysis tool')
 
-    dulab1_parser.add_argument('modes', choices=['auto', 'individual'], nargs=1, help='Analysis mode')
-
-    dulab1_parser.add_argument('--input', type=str, nargs=1,
-                                        help='In auto mode, this should be a directory contains genome sequences. In individual mode, this should be the snp_merged.tsv file produced by dulab1')
-
-    dulab1_parser.add_argument('--sites', type=int, nargs='+',
-                                          help = 'Sites you interest(1-29903), should more than one site')
-
-    dulab1_parser.add_argument('--frequency', type=float, nargs=1,
-                                              help = 'Analysis SNVs with mutation frequency equal to or more than given frenquency(0-1)')
-    
-    dulab1_parser.add_argument('--output', type=str, nargs=1,
-                                         help='Output directory, empty or not exists')
+    dulab1_parser.add_argument('modes', choices=['auto', 'individual'], help='Analysis mode')
+    dulab1_parser.add_argument('--input', type=str, required=True,
+                                        help='In auto mode, this should be a directory contains fasta format genome sequences files. In individual mode, this should be the snp_merged.tsv file produced by AutoVEM')
+    dulab1_parser.add_argument('--sites', type=int, nargs='+', default=None,
+                                          help = 'Mutation sites of interest, at least two sites. Space delimited list of integer numbers.')
+    dulab1_parser.add_argument('--frequency', type=float, default=None,
+                                              help = 'Analysis SNV sites with mutation frequency equal to or more than given frenquency. If the --sites parameter is provided, intersection will be taken.')
+    dulab1_parser.add_argument('--output', type=str, required=True, help='Output directory')
     
     args = dulab1_parser.parse_args()
-
 
     return args
 
 def extract_sequence(directory, genomeDirectory):
     '''
-    split fasta file
+    split fasta file(s)
 
-    :param directory: input directory
-    :param genomeDirectory: genome directory
+    :param directory: input genome directory
+    :param genomeDirectory: outputdir\genome directory
     '''
     files = os.listdir(directory)
     files_list = []
@@ -68,29 +54,26 @@ def extract_sequence(directory, genomeDirectory):
         file = os.path.join(directory, file)
         files_list.append(file)
     
-    pattern_head = r'^>hCoV-19'
-    pattern_id = r'EPI_ISL_\d*'
     id_path = ''
-    pointer = 0
+    pointer = 1
     for file in files_list:
         with open(file, 'r') as fhand:
             for line in fhand.readlines():
                 line = line.rstrip()
-                header = re.findall(pattern_head, line)
-                len_header = len(header)
-                if len_header == 1:
-                    id = re.findall(pattern_id, line)[0]
+                if len(line)==0:
+                    continue
+
+                if line[0]=='>':
+                    id = line.split('|')[1]
                     id = id + '.fa'
                     id_path = os.path.join(genomeDirectory, id)
                     if os.path.exists(id_path):
-                        # pointer：file already exists?
-                        # yes/no：1/0
                         pointer = 1
                         continue
                     with open(id_path, 'a') as fhand_sequence:
                         pointer = 0
                         fhand_sequence.write(line+'\n')
-                if len_header == 0:
+                else:
                     if pointer == 1:
                         continue
                     with open(id_path, 'a') as fhand_sequence:
@@ -103,8 +86,6 @@ def get_file_list(directory):
     :param directory: genome directory
     :returns filesPath(list, str):
     '''
-    # fileslist：待分析的genome文件名列表
-    # filespath：待分析genome的绝对路径文件名列表
     filesPath = []
     filesList = os.listdir(directory)
     for path in filesList:
@@ -212,6 +193,7 @@ def split_sequence(file, path):
     else :
         region = match_region[0]
     
+    region = '_'.join(region.split()).title()
     basicMessage = {}
     basicMessage['Id'] = id
     temp = region.casefold()
@@ -297,7 +279,7 @@ def call(vcfFile, directory):
                 continue
             else :
                 n_indels = n_indels + 1
-    if n_indels >= 3:
+    if n_indels > 3:
         return -1, -1
     else :
         os.system('vcftools --vcf %s --recode --remove-indels --stdout > %s' % (snp_indel_file_path, snp_file_path))
@@ -325,9 +307,9 @@ def snp_mutation_information(file, directory):
                 snpMutationMessage = dict()
                 line = line.rstrip()
                 line = line.split()
-                pos = line[0]
-                ref = line[1]
-                alt = line[2]
+                pos = int(line[0])
+                ref = str(line[1])
+                alt = str(line[2])
                 snpMutationMessage['Position'] = pos
                 snpMutationMessage['Ref'] = ref
                 snpMutationMessage['Alt'] = alt
@@ -335,7 +317,7 @@ def snp_mutation_information(file, directory):
 
     return mutationInformation
 
-def snp_filter(file, directory, sites, fre):
+def snp_filter(file, directory, sites=None, fre=None):
     '''
     filter SNP sites
 
@@ -365,9 +347,9 @@ def snp_filter(file, directory, sites, fre):
         if item not in snp_dict:
             snp_dict[item] = 0
 
-    snp_pos = []
-    if len(sites)==0:
-        if fre==0:
+    snp_pos = list()
+    if sites is None:
+        if fre is None:
             for key,item in snp_dict.items():
                 if item>=0.05:
                     snp_pos.append(key)
@@ -376,7 +358,7 @@ def snp_filter(file, directory, sites, fre):
                 if item>=fre:
                     snp_pos.append(key)
     else:
-        if fre==0:
+        if fre is None:
             for item in sites:
                 tmp = snp_dict[item]
                 if tmp > 0:
@@ -556,7 +538,13 @@ def linkage_analysis(ped, mapf, block, directory):
     haplotypesFile = os.path.join(directory, 'plot.CUSTblocks')
 
     os.system('java -jar %s -n -skipcheck -pedfile %s -info %s -blocks %s -png -out %s' % (haploview, ped, mapf, block, temp))
-
+    if os.path.exists(ped):
+        os.remove(ped)
+    if os.path.exists(mapf):
+        os.remove(mapf)
+    if os.path.exists(block):
+        os.remove(block)
+        
     return haplotypesFile
 
 def haplotyper(file, dataFile, directory):
@@ -612,6 +600,10 @@ def haplotyper(file, dataFile, directory):
             tem = ''
             tem = value + '\t' + key + '\n'
             fhand.write(tem)
+    if os.path.exists(dataFile):
+        os.remove(dataFile)
+    if os.path.exists(file):
+        os.remove(file)
 
     return dataPlot, haplotypes
 
@@ -662,7 +654,7 @@ def plot(file, file2, directory):
     country = country.tolist()
     n_country = len(country)
     
-    n=15
+    n=7
     start = df.index[0]
     end = df.index[-1]
     detal = end - start
@@ -841,7 +833,6 @@ def module1(inputDirectory, outputDirectory):
         else :
             basicmessage, splitfasta, tempdirectory = split_sequence(file, path)
             if basicmessage == -1:
-                os.system('rm -rf %s' % tempdirectory)
                 continue
             else :
                 samFile = align(splitfasta, indexDirectory, tempdirectory)
@@ -882,7 +873,7 @@ def module1(inputDirectory, outputDirectory):
     print('Have successfully obtained SNV mutations information.')
     return snpFile
 
-def module2(file, directory, sites, frequency):
+def module2(file, directory, sites=None, frequency=None):
     '''
     haplotype and plot
 
@@ -916,7 +907,7 @@ def module2(file, directory, sites, frequency):
 
     print('Linkage analyzing...')
     haplotypesFile = linkage_analysis(pedFile, mapFile, blockFile, directory)
-    # os.system('rm -rf %s %s %s'%(mapFile, pedFile, blockFile))
+    os.system('rm -rf %s %s %s'%(mapFile, pedFile, blockFile))
     print('Done!')
     
     print('Haplotyping......')
@@ -929,51 +920,46 @@ def module2(file, directory, sites, frequency):
 
 
 args = arguments()
-func = args.modes[0]
-inp = args.input[0]
-inp = os.path.abspath(inp)
-outputDirectory = args.output[0]
-outputDirectory = os.path.abspath(outputDirectory)
+func = args.modes
+inp = os.path.abspath(args.input)
+outputDirectory = os.path.abspath(args.output)
+sites = args.sites
+fre = args.frequency
 
-if not args.sites:
-    sites = []
-else:
-    sites = args.sites
-if not args.frequency:
-    frequency=0
-else:
-    frequency=args.frequency[0]
-
-if (frequency<0) or (frequency>1):
-    print('Frequency should be greater than 0 and less than or equal to 1.')
+if not os.path.exists(inp):
+    print("ERROR: %s doesn't exists."%inp)
     sys.exit()
-
-if len(sites)==1:
-    print('Too little sites.')
-    sys.exit()
-
-if len(sites)>1:
-    sites.sort()
-    under = sites[0]
-    top = sites[-1]
-    if under<=0 or top>29903:
-        print('Site(s) is(are) out of range.')
+if fre is None:
+    pass
+else:
+    if (fre<0) or (fre>1):
+        print('Frequency should be greater than 0 and less than or equal to 1.')
         sys.exit()
 
-print(args)
-print(func)
-print(inp)
-print(sites)
-print(frequency)
-print(outputDirectory)
+if sites is None:
+    pass
+else:
+    if len(sites)==1:
+        print('Too little sites.')
+        sys.exit()
+
+    if len(sites)>1:
+        sites.sort()
+        under = sites[0]
+        top = sites[-1]
+        if under<=0 or top>29903:
+            print('Site(s) is(are) out of range.')
+            sys.exit()
 
 if __name__ == '__main__':
     if func == 'auto':
         snpFile = module1(inp, outputDirectory)
-        module2(snpFile, outputDirectory, sites, frequency)
+        module2(snpFile, outputDirectory, sites=sites, frequency=fre)
         print('Done!')
+        sys.exit()
     if func == 'individual':
-        module2(inp, outputDirectory, sites, frequency)
+        module2(inp, outputDirectory, sites=sites, frequency=fre)
         print('Done!')
+        sys.exit()
 
 
