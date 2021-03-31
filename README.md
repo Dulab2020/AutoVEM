@@ -84,7 +84,7 @@ There are two optional arguments:  `--frequency` and `--sites`
 >
 > **Alt**: mutation base
 
-![image-20210314151850978](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\image-20210314151850978.png)
+![image-20210314151850978](E:\06 Project\AutoVEM\README.assets\image-20210314151850978.png)
 
 **Note**: If  position is `0`, it means this sequence has no mutation. And the `Ref` and `Alt` will be `NA`.
 
@@ -92,7 +92,7 @@ There are two optional arguments:  `--frequency` and `--sites`
 
 `seq_info.tsv`	Produced by `auto` mode. It stores summary information about quality control.
 
-![image-20210314151929583](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\image-20210314151929583.png)
+![image-20210314151929583](E:\06 Project\AutoVEM\README.assets\image-20210314151929583.png)
 
 
 
@@ -106,17 +106,17 @@ There are two optional arguments:  `--frequency` and `--sites`
 >
 > Frequency: mutation frequency of the site
 
-![image-20210314151955513](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\image-20210314151955513.png)
+![image-20210314151955513](E:\06 Project\AutoVEM\README.assets\image-20210314151955513.png)
 
 
 
 `plot.LD.PNG`	Linkage analysis result of the specific sites. Produced by `auto` mode or `individual` mode.
 
-![plot.LD](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\plot.LD.PNG)
+![plot.LD](E:\06 Project\AutoVEM\README.assets\plot.LD.PNG)
 
 `haplotypes.tsv`	Produced by `auto` mode or `individual` mode, `\t` delimited. It stores the information of the haplotypes.
 
-![image-20210314152039368](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\image-20210314152039368.png)
+![image-20210314152039368](E:\06 Project\AutoVEM\README.assets\image-20210314152039368.png)
 
 `data_plot.tsv`	Produced by `auto` mode or `individual` mode, `\t` delimited. 
 
@@ -130,16 +130,16 @@ There are two optional arguments:  `--frequency` and `--sites`
 >
 > Name: haplotype name of the genome sequence.
 
-![image-20210314152112776](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\image-20210314152112776.png)
+![image-20210314152112776](E:\06 Project\AutoVEM\README.assets\image-20210314152112776.png)
 
 
 
 `hap_date_country.tsv`	Produced by `auto` mode or `individual` mode, `\t` delimited. It stores the number of different haplotypes of different countries or regions in different periods.
 
-![image-20210314152434602](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\image-20210314152434602.png)
+![image-20210314152434602](E:\06 Project\AutoVEM\README.assets\image-20210314152434602.png)
 
 
 
 `hap_date.pdf`	Produced by `auto` mode or `individual` mode.  Visualization of the haplotypes epidemic trends.
 
-![hap_date](https://github.com/Dulab2020/AutoVEM/tree/main/images_of_readme\hap_date.png)
+![hap_date](E:\06 Project\AutoVEM\README.assets\hap_date.png)
