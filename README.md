@@ -1,7 +1,5 @@
 # Guides for AutoVEM
 
-[TOC]
-
 ## 0. Basic Messages
 
 Program: AutoVEM (works on Linux machine)
@@ -112,7 +110,7 @@ There are two optional arguments:  `--frequency` and `--sites`
 
 `plot.LD.PNG`	Linkage analysis result of the specific sites. Produced by `auto` mode or `individual` mode.
 
-![plot.LD]https://github.com/Dulab2020/AutoVEM/blob/main/README.assets/plot.LD.PNG)
+![plot.LD](https://github.com/Dulab2020/AutoVEM/blob/main/README.assets/plot.LD.PNG)
 
 `haplotypes.tsv`	Produced by `auto` mode or `individual` mode, `\t` delimited. It stores the information of the haplotypes.
 
