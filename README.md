@@ -1,6 +1,6 @@
 # Guides for AutoVEM
 
-[toc]
+[TOC]
 
 ## 0. Basic Messages
 
