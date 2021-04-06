@@ -82,7 +82,7 @@ There are two optional arguments:  `--frequency` and `--sites`
 >
 > **Alt**: mutation base
 
-![image-20210314151850978](https://github.com/Dulab2020/AutoVEM/blob/main/README.assets/image-20210314151850978.png)
+![image-20210314151850978](https://github.com/Dulab2020/AutoVEM/blob/main/README.assets//image-20210314151850978.png)
 
 **Note**: If  position is `0`, it means this sequence has no mutation. And the `Ref` and `Alt` will be `NA`.
 
