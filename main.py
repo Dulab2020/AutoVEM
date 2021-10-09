@@ -159,18 +159,24 @@ def split_sequence(file, path):
              'macau', 'qingdao', 'liaoning', 'harbin', 'tianmen', 'jian']   
     delete = ['lion', 'cat', 'env', 'canine', 'tiger', 'mink']
 
-    subSequence = []
     with open(file,'r') as fhand:
+        sequence = ""
         for line in fhand.readlines():
             line = line.rstrip()
-            subSequence.append(line) 
+            if len(line) == 0:
+                pass
+            elif line[0] == ">":
+                header = line
+            else:
+                line = line.upper()
+                sequence = sequence + line 
     
-    if len(subSequence[-1]) < 30:
-        subSequence[-2] = subSequence[-2] + subSequence[-1]
-        subSequence.pop()
+    # if len(subSequence[-1]) < 30:
+    #     subSequence[-2] = subSequence[-2] + subSequence[-1]
+    #     subSequence.pop()
 
     # Id Region Date
-    header = subSequence[0]
+    # header = subSequence[0]
     pattern_date = r'20\d{2}-\d{1,2}-\d{1,2}$'
     match_date = re.findall(pattern_date, header)
     len_match = len(match_date)
@@ -201,6 +207,7 @@ def split_sequence(file, path):
         region = 'China'
     if temp in delete:
         return -1, -1, -1
+
         
     basicMessage['Country'] = region
     basicMessage['Date'] = date
@@ -208,13 +215,23 @@ def split_sequence(file, path):
     tempAnalysisDirectory = os.path.join(path, id)
     os.mkdir(tempAnalysisDirectory)
     splitedFile = os.path.join(tempAnalysisDirectory, splitFastaFileName)
+
+    length = len(sequence)
+    # section = length//80
+    subSequence = list()
+    # subSequence.append(head)
+    for i in list(range(0,length-30)):
+        if (i+100) >= length:
+            sub = sequence[i:]
+        else:
+            sub = sequence[i:(i+100)]
+        sub = sub.upper()
+        subSequence.append(sub)
+
     with open(splitedFile, 'a') as fhand:
-        for i, subsequence in enumerate(subSequence):
-            if i == 0:
-                pass
-            else :
-                readName = ">" + str(i) + "." + header[1:] + "\n" + subsequence
-                fhand.write("\n" + readName)
+        for subsequence in subSequence:
+            readName = ">" + str(i) + "." + header[1:] + "\n" + subsequence
+            fhand.write("\n" + readName)
 
     return basicMessage, splitedFile, tempAnalysisDirectory
 
