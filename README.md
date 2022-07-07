@@ -20,6 +20,11 @@ Year: 2020
 
 License: Released under GNU General Public License
 
+**Citation**
+
+AutoVEM can be cited with the following paper:
+		Xi, B., Jiang, D., Li, S., Lon, J. R., Bai, Y., Lin, S., ... & Du, H. (2021). AutoVEM: An automated tool to real-time monitor epidemic trends and key mutations in SARS-CoV-2 evolution. *Computational and structural biotechnology journal*, *19*, 1976-1985.
+
 ## 1. Prerequisites
 
 - Python (v3.8.6 or higher) with pandas and matplotlib packages (latest version).
